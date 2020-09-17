@@ -1,4 +1,5 @@
 from flask import render_template, request, redirect, url_for, Response
+from flask_qrcode import QRcode
 
 from frickelclient import app
 from frickelclient import lsmsd_api
@@ -6,6 +7,7 @@ from frickelclient.forms import ItemForm
 import requests
 import json
 
+QRcode(app)
 
 @app.route("/dinge")
 @app.route("/")
@@ -23,6 +25,14 @@ def show_item(id):
 
     return render_template("list_single_item.html", item=item)
 
+@app.route("/ding/label/<int:id>")
+def show_label(id):
+    item = lsmsd_api.get_item(id)
+    if item['Parent'] != 0:
+        parent = lsmsd_api.get_item(item['Parent'])
+        item['Parent'] = parent
+
+    return render_template("list_single_lable.html", item=item)
 
 @app.route("/dinge/add", methods=['GET', 'POST'])
 def add_item():
@@ -76,36 +86,14 @@ def edit_item(id):
 
         return render_template("edit_item.html", form=form)
 
-
-@app.route("/dinge/label/<int:id>", methods=["POST"])
-def print_label(id):
-    item = lsmsd_api.get_item(id)
-
-    if item is None:
-        return "NOT FOUND", 404
-
-    url = app.config["KLAUSKLEBER_AAS_URL"]
-    data = {"id": str(item['Id']),
-            "name": item['Name'],
-            "maintainer": item['Maintainer'],
-            "owner": item['Owner'],
-            "use_pol": item['Usage'],
-            "discard_pol": item['Discard']}
-
-    headers = {'Content-type': 'application/json',
-               'Accept': 'text/plain'}
-
-    try:
-        r = requests.post(url, data=json.dumps(data), headers=headers,
-                          timeout=5)
-    except requests.ConnectionError:
-        return "KLAUSKLEBER UNREACHABLE", 501
-
-    if r.status_code == 200:
-        return "OK", 200
-    else:
-        return "FAIL", 501
-
+@app.route("/inhalte/<int:id>")
+def show_inhalte(id):
+    all_items = lsmsd_api.get_items()
+    found_items = []
+    for item in all_items:
+        if item["Parent"] == id:
+            found_items.append(item)
+    return render_template("list_contents.html", items=found_items)
 
 @app.route("/dinge/search", methods=["POST"])
 def search_items():

@@ -1,96 +1,29 @@
-{% extends "layout.html" %}
+{% extends "layout_min.html" %}
 
 {% block content %}
+      {% set id_str = item['Id'] | string() %}
+      <img src="{{ qrcode("http://127.0.0.1/ding/" + id_str) }}">
 
-<table class="table">
-  <thead>
-    <tr>
-      <th class="col-md-2">Property</th>
-      <th class="col-md-10">Value</th>
-    </tr>
-  </thead>
-  <tbody>
+      <div id="ding_id">{{ item['Id'] }}</div>
 
-    <tr>
-      <td>
-        Id
-      </td>
-      <td>
-        {{ item['Id'] }} <a href="http://127.0.0.1:5000/ding/label/{{ item['Id']}}">Label</a>
-      </td>
-    <tr>
+      <div id="" >{{ item['Name'] }}</div>
 
-    <tr>
-      <td>
-        Name
-      </td>
-      <td>
-        {{ item['Name'] }}
-      </td>
-    <tr>
+      <div id="" >{{ item['Description'] }}</div>
 
-    <tr>
-      <td>
-        Description
-      </td>
-      <td>
-        {{ item['Description'] }}
-      </td>
-    </tr>
+      <div id="" >{{ item['Owner'] }}</div>
 
-    <tr>
-      <td>
-        Owner
-      </td>
-      <td>
-        {{ item['Owner'] }}
-      </td>
-    </tr>
+      <div id="" >{{ item['Maintainer'] }}</div>
 
-    <tr>
-      <td>
-        Maintainer
-      </td>
-      <td>
-        {{ item['Maintainer'] }}
-      </td>
-    </tr>
+      <div id="" >{{ item['Usage'] }}</div>
 
-    <tr>
-      <td>
-        Use-Policy
-      </td>
-      <td>
-        {{ item['Usage'] }}
-      </td>
-    </tr>
+      <div id="" >{{ item['Discard'] }}</div>
 
-    <tr>
-      <td>
-        Discard-Policy
-      </td>
-      <td>
-        {{ item['Discard'] }}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        Parent
-      </td>
-      <td>
         {% if item['Parent'] == 0 %}
           None
         {% else %}
           <a href="{{ url_for("show_item", id=item['Parent']['Id'])}}">{{ item['Parent']['Name'] }}</a>
         {% endif %}
-          <a href="http://127.0.0.1:5000/inhalte/{{ item['Id']}}">Inhalte</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        Images
-      </td>
-      <td>
+
         <div id="images_space" class="container-fluid">
           {% if item["Images"] %}{% for _ in range((item["Images"]|length // 4) + 1) %}
           {% set base_number = loop.index0 * 4 %}
@@ -102,12 +35,8 @@
           {% endfor %}{% endif %}
         </div>
       </td>
-    </tr>
-  </tbody>
-</table>
 
-<div id="label-status"></div>
-<button id="label-button" class="btn btn-default">Print Label</button>
+
 <a href="{{ url_for("edit_item", id=item['Id']) }}" role="button" class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i> Edit Item</a>
 <button id="delete-button" class="btn btn-warning"><i class="glyphicon glyphicon-trash"></i> Delete Item</button>
 
